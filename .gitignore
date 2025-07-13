@@ -1,0 +1,23 @@
+# ── Node / PNPM / Yarn ───────────────────────────
+**/node_modules/
+
+# ── Build artefacts ──────────────────────────────
+dist/
+build/
+coverage/
+
+# ── Vite / React / Next cache ────────────────────
+.vite/
+.next/
+*.log
+
+# ── OS / editor junk ─────────────────────────────
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+
+# ── Environment secrets ──────────────────────────
+.env
+.env.*
+
