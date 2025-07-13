@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { useTheme } from "../theme";
 import LanguageSelector from "./LanguageSelector.tsx";
 import { Box } from "@mui/material";
+import OutputPanel from "./OutputPanel.tsx";
 type EditorType = Monaco.editor.IStandaloneCodeEditor;
 
 const CodeEditor = () => {
@@ -21,14 +22,17 @@ const CodeEditor = () => {
   };
   return (
     <Box>
-      <LanguageSelector language={language} onSelect={onSelect} />
-      <Editor
-        height="90vh"
-        value=""
-        theme={theme === "dark" ? "vs-dark" : "vs-light"}
-        onMount={onMount}
-        language={language}
-      />
+      <Box sx={{ margin: "10px" }}>
+        <LanguageSelector language={language} onSelect={onSelect} />
+        <Editor
+          height="50vh"
+          value=""
+          theme={theme === "dark" ? "vs-dark" : "vs-light"}
+          onMount={onMount}
+          language={language}
+        />
+      </Box>
+      <OutputPanel />
     </Box>
   );
 };
