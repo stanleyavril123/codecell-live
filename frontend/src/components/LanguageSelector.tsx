@@ -2,9 +2,14 @@ import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { LANGUAGE_VERSION } from "../constants.ts";
 
+type Props = {
+  language: string;
+  onSelect: (lang: string) => void;
+};
+
 const languages = Object.entries(LANGUAGE_VERSION);
 
-const LanguageSelector = () => {
+const LanguageSelector = ({ language, onSelect }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 
   const open = Boolean(anchorEl);
@@ -26,7 +31,7 @@ const LanguageSelector = () => {
         aria-expanded={open ? "true" : undefined}
         onClick={handleClick}
       >
-        Language :
+        {language}
       </Button>
       <Menu
         id="basic-menu"
@@ -40,7 +45,13 @@ const LanguageSelector = () => {
         }}
       >
         {languages.map(([lang, version]) => (
-          <MenuItem key={lang} onClick={handleClose}>
+          <MenuItem
+            key={lang}
+            onClick={() => {
+              onSelect(lang);
+              handleClose();
+            }}
+          >
             {lang} - v{version}
           </MenuItem>
         ))}
