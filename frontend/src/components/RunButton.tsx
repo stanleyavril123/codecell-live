@@ -1,6 +1,11 @@
-import { Box, Button } from "@mui/material";
+import { Button } from "@mui/material";
 
-const RunButton = () => {
-  return <Button>Run</Button>;
+type Props = {
+  language: string;
+  source: string;
+};
+
+const RunButton = ({ language, source }: Props) => {
+  return <Button>Run code</Button>;
 };
 export default RunButton;

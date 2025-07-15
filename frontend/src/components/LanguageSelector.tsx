@@ -44,7 +44,7 @@ const LanguageSelector = ({ language, onSelect }: Props) => {
           },
         }}
       >
-        {languages.map(([lang, version]) => (
+        {languages.map(([lang]) => (
           <MenuItem
             key={lang}
             onClick={() => {
@@ -52,7 +52,7 @@ const LanguageSelector = ({ language, onSelect }: Props) => {
               handleClose();
             }}
           >
-            {lang} - v{version}
+            {lang}
           </MenuItem>
         ))}
       </Menu>
