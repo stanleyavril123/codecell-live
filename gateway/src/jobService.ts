@@ -23,14 +23,37 @@ class JobService {
 
     // fake code run : ...
 
+    setTimeout(() => {
+      this.broadcast(job.id, { type: "stdout", data: "hello from stub\\n" });
+      this.broadcast(job.id, { type: "exit", code: 0 });
+      this.jobs.delete(job.id);
+    }, 100);
+
     return job.id;
   }
 
-  attach(jobId: string, ws: WebSocket) {}
+  attach(jobId: string, ws: WebSocket) {
+    const job = this.jobs.get(jobId);
+    if (!job) {
+      return ws.close();
+    }
+    job.sockets.add(ws);
+  }
 
-  detach(jobId: string, ws: WebSocket) {}
+  detach(jobId: string, ws: WebSocket) {
+    this.jobs.get(jobId)?.sockets.delete(ws);
+  }
 
-  private brodcast(jobId: string, chunk: unknown) {}
+  private broadcast(jobId: string, chunk: unknown) {
+    const job = this.jobs.get(jobId);
+    if (!job) return;
+
+    const msg = JSON.stringify(chunk);
+
+    job.sockets.forEach((s) => {
+      s.readyState === s.OPEN && s.send(msg);
+    });
+  }
 }
 
 export const jobService = new JobService();
