@@ -8,7 +8,7 @@ export const appRouter = t.router({
   runCode: t.procedure
     .input(
       z.object({
-        language: z.enum(["js", "ts", "py"]),
+        language: z.enum(["js", "ts", "py", "php", "cs", "java"]),
         source: z.string().max(32_000),
       }),
     )
