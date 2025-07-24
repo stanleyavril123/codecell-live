@@ -22,7 +22,14 @@ const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/stream" });
 
 wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
-  const jobId = req.url?.split("/").pop()!;
+  const url = new URL(req.url ?? "", `http://${req.headers.host}`);
+  const jobId = url.searchParams.get("jobId");
+
+  if (!jobId) {
+    ws.close();
+    return;
+  }
+
   jobService.attach(jobId, ws);
   ws.on("close", () => jobService.detach(jobId, ws));
 });

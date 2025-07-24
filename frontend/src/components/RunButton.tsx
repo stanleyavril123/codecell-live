@@ -10,7 +10,7 @@ type Props = {
 const RunButton = ({ language, source }: Props) => {
   const { mutate: runCode, isPending } = trpc.runCode.useMutation({
     onSuccess({ jobId }) {
-      const ws = new WebSocket(`ws://localhost:4000/stream/${jobId}`);
+      const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${jobId}`);
       ws.onmessage = (e) => {
         const chunk = JSON.parse(e.data);
       };
