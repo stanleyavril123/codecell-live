@@ -1,13 +1,13 @@
 import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
-import { LANGUAGE_VERSION } from "../constants.ts";
+import { LANGUAGE_VERSION, type UiLanguage } from "../constants.ts";
 
 type Props = {
   language: string;
-  onSelect: (lang: string) => void;
+  onSelect: (lang: UiLanguage) => void;
 };
 
-const languages = Object.entries(LANGUAGE_VERSION);
+const languages = Object.keys(LANGUAGE_VERSION) as UiLanguage[];
 
 const LanguageSelector = ({ language, onSelect }: Props) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -44,7 +44,7 @@ const LanguageSelector = ({ language, onSelect }: Props) => {
           },
         }}
       >
-        {languages.map(([lang]) => (
+        {languages.map((lang) => (
           <MenuItem
             key={lang}
             onClick={() => {

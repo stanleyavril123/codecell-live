@@ -6,11 +6,12 @@ import LanguageSelector from "./LanguageSelector.tsx";
 import { Box } from "@mui/material";
 import OutputPanel from "./OutputPanel.tsx";
 import RunButton from "./RunButton.tsx";
+import { LANGUAGE_VERSION, type UiLanguage } from "../constants.ts";
 type EditorType = Monaco.editor.IStandaloneCodeEditor;
 
 const CodeEditor = () => {
   const editorRef = useRef<EditorType | null>(null);
-  const [language, setLanguage] = useState<string>("javascript");
+  const [language, setLanguage] = useState<UiLanguage>("javascript");
   const { theme } = useTheme();
   const [source, setSource] = useState<string>("");
 
@@ -19,14 +20,14 @@ const CodeEditor = () => {
     editor.focus();
   };
 
-  const onSelect = (language: string) => {
+  const onSelect = (language: UiLanguage) => {
     setLanguage(language);
   };
   return (
     <Box>
       <Box sx={{ margin: "10px" }}>
         <LanguageSelector language={language} onSelect={onSelect} />
-        <RunButton language={language} source={source} />
+        <RunButton language={LANGUAGE_VERSION[language]} source={source} />
         <Editor
           height="50vh"
           value={source}
