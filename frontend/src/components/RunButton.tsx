@@ -7,12 +7,27 @@ type Props = {
   source: string;
 };
 
+type Chunk =
+  | { type: "stdout"; data: string }
+  | { type: "stderr"; data: string }
+  | { type: "exit"; data: number };
+
 const RunButton = ({ language, source }: Props) => {
   const { mutate: runCode, isPending } = trpc.runCode.useMutation({
     onSuccess({ jobId }) {
       const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${jobId}`);
       ws.onmessage = (e) => {
-        const chunk = JSON.parse(e.data);
+        try {
+          const chunk: Chunk = JSON.parse(e.data as string);
+
+          switch (chunk.type) {
+            case "stdout":
+            case "stderr":
+            case "exit":
+          }
+        } catch (err) {
+          console.log("Failed WS");
+        }
       };
     },
   });
