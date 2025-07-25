@@ -37,7 +37,7 @@ const CodeEditor = () => {
           onChange={(value) => setSource(value ?? "")}
         />
       </Box>
-      <OutputPanel />
+      <OutputPanel output="I AM CODE" />
     </Box>
   );
 };

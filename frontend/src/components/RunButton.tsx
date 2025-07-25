@@ -16,6 +16,8 @@ const RunButton = ({ language, source }: Props) => {
   const { mutate: runCode, isPending } = trpc.runCode.useMutation({
     onSuccess({ jobId }) {
       const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${jobId}`);
+      ws.onopen = () => console.log("WS open");
+      ws.onerror = (e) => console.error("WS error", e);
       ws.onmessage = (e) => {
         try {
           const chunk: Chunk = JSON.parse(e.data as string);

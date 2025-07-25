@@ -1,7 +1,11 @@
 import { Box } from "@mui/material";
 
-const OutputPanel = () => {
-  return <Box>test</Box>;
+type Props = {
+  output: string;
+};
+
+const OutputPanel = ({ output }: Props) => {
+  return <Box>{output}</Box>;
 };
 
 export default OutputPanel;
