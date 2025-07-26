@@ -15,20 +15,16 @@ function App() {
         padding: "2rem 0",
       }}
     >
-      <Box sx={{ width: "100%", maxWidth: 900 }}>
-        <Box
-          sx={{
-            display: "flex",
-            justifyContent: "flex-end",
-            mb: 2,
-          }}
-        >
+      <Box sx={{ width: "100%", maxWidth: 1100 }}>
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
           <ThemeToggle />
         </Box>
+
         <Typography
+          component="h1"
           sx={{
             margin: "0 0 1.25rem 0",
-            fontWeight: "700",
+            fontWeight: 700,
             fontSize: "60px",
             letterSpacing: "0.2px",
             color: "#000",
@@ -36,9 +32,11 @@ function App() {
         >
           CodeCell
         </Typography>
+
         <CodeEditor />
       </Box>
     </Box>
   );
 }
+
 export default App;
