@@ -23,20 +23,40 @@ const CodeEditor = () => {
   const onSelect = (language: UiLanguage) => {
     setLanguage(language);
   };
+
   return (
-    <Box>
-      <Box sx={{ margin: "10px" }}>
+    <Box className="panel" sx={{ width: "100%" }}>
+      <Box className="toolbar">
         <LanguageSelector language={language} onSelect={onSelect} />
         <RunButton language={LANGUAGE_VERSION[language]} source={source} />
+        <Box sx={{ flex: 1 }} />
+      </Box>
+
+      <Box className="editor-frame">
         <Editor
-          height="50vh"
+          height="56vh"
           value={source}
           theme={theme === "dark" ? "vs-dark" : "vs-light"}
           onMount={onMount}
           language={language}
           onChange={(value) => setSource(value ?? "")}
+          options={{
+            minimap: { enabled: false },
+            roundedSelection: false,
+            cursorBlinking: "smooth",
+            scrollBeyondLastLine: false,
+            lineNumbers: "on",
+            glyphMargin: false,
+            renderLineHighlight: "none",
+            fontFamily:
+              "'IBM Plex Mono','JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
+            fontSize: 18,
+            lineHeight: 28,
+            padding: { top: 16, bottom: 16 },
+          }}
         />
       </Box>
+
       <OutputPanel output="I AM CODE" />
     </Box>
   );

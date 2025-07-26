@@ -1,6 +1,7 @@
 import { Box, Button, Menu, MenuItem } from "@mui/material";
 import { useState } from "react";
 import { LANGUAGE_VERSION, type UiLanguage } from "../constants.ts";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
 
 type Props = {
   language: string;
@@ -25,11 +26,15 @@ const LanguageSelector = ({ language, onSelect }: Props) => {
   return (
     <Box>
       <Button
-        id="basic-button"
-        aria-controls={open ? "basic-menu" : undefined}
+        className="btn-ghost"
+        variant="text"
+        disableElevation
+        disableRipple
+        aria-controls={open ? "lang-menu" : undefined}
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
-        onClick={handleClick}
+        endIcon={<KeyboardArrowDownIcon fontSize="small" />}
+        onClick={(e) => setAnchorEl(e.currentTarget)}
       >
         {language}
       </Button>

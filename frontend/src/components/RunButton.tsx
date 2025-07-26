@@ -1,7 +1,7 @@
 import { Button } from "@mui/material";
 import { trpc } from "../trcp";
 import type { ApiLanguage } from "../constants";
-
+import { useTheme } from "../theme";
 type Props = {
   language: ApiLanguage;
   source: string;
@@ -13,6 +13,7 @@ type Chunk =
   | { type: "exit"; data: number };
 
 const RunButton = ({ language, source }: Props) => {
+  const { theme } = useTheme();
   const { mutate: runCode, isPending } = trpc.runCode.useMutation({
     onSuccess({ jobId }) {
       const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${jobId}`);
@@ -35,6 +36,10 @@ const RunButton = ({ language, source }: Props) => {
   });
   return (
     <Button
+      sx={{
+        backgroundColor: theme === "dark" ? "#efeee7" : "#000000",
+        color: theme === "dark" ? "#000000" : "#efeee7",
+      }}
       onClick={() => runCode({ language, source })}
       disabled={isPending}
       variant="contained"

@@ -1,4 +1,94 @@
-html.dark {
-  background-color: #121212;
-  color: #e0e0e0;
+:root {
+  --page: #efeee7;
+  --ink: #000000;
+  --line: #000000;
+  --line-2: #dedede;
+  --line-soft: #e1e1e1;
+}
+
+html,
+body {
+  background-color: var(--page);
+  color: var(--ink);
+  margin: 0;
+  padding: 0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Helvetica,
+    Arial,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html.dark,
+html.dark body {
+  background-color: #181818;
+  color: #f5f5f5;
+}
+
+#root {
+  min-height: 100vh;
+  background: inherit;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+.panel {
+  background: var(--page);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  padding: 0;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--line-2);
+}
+
+.MuiButton-root {
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  text-transform: none !important;
+}
+
+.btn-ghost.MuiButton-root {
+  background: transparent !important;
+  border: none !important;
+  color: var(--ink) !important;
+  padding: 0.35rem 0.5rem !important;
+}
+.btn-ghost.MuiButton-root:hover {
+  background: transparent !important;
+  text-decoration: underline;
+}
+.editor-frame {
+  border: 0;
+  border-bottom: 1px solid var(--ink);
+  border-radius: 0;
+  background: #fff;
+}
+
+.output-frame {
+  border: 0;
+  border-radius: 0;
+  background: var(--page);
+}
+.monaco-editor .margin {
+  border-right: 1px solid var(--line-soft) !important;
+}
+
+@media (max-width: 600px) {
+  .page-title {
+    font-size: 40px;
+  }
 }

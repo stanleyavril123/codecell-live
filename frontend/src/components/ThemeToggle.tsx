@@ -1,9 +1,12 @@
 import { useTheme } from "../theme";
+import { Button } from "@mui/material";
 
 const ThemeToggle = () => {
   const { theme, toggleTheme } = useTheme();
   return (
-    <button onClick={toggleTheme}>{theme === "dark" ? "Night" : "Day"}</button>
+    <Button sx={{ color: "#000" }} onClick={toggleTheme}>
+      {theme === "dark" ? "Night" : "Day"}
+    </Button>
   );
 };
 
