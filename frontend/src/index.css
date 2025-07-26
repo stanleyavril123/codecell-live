@@ -1,14 +1,89 @@
+/* Light page */
 html,
 body {
-  background-color: #efeee7;
-  color: #000; /* pick a text color that works on your background */
+  /* background-color: #efeee7; */
+  background-color: #fff;
+  color: #111;
   margin: 0;
   padding: 0;
+  font-family:
+    Inter,
+    system-ui,
+    -apple-system,
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Dark‑mode override */
+/* Dark page (kept for your toggle) */
 html.dark,
 html.dark body {
-  background-color: #121212;
-  color: #e0e0e0;
+  background-color: #181818;
+  color: #f5f5f5;
+}
+
+/* App root inherits page color */
+#root {
+  min-height: 100vh;
+  background: inherit;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 2rem 0;
+}
+
+button,
+.MuiButton-root {
+  border-radius: 0 !important; 
+  box-shadow: none !important;
+  background: #fff !important;
+  color: #222 !important;
+  border: 1px solid #000000 !important; 
+  text-transform: none !important;
+  padding: 0.5rem 1.25rem !important;
+}
+button:hover,
+.MuiButton-root:hover {
+  background: #f7f7f7 !important;
+  border-color: #d9d9d9 !important;
+}
+
+/* A reusable “panel” class for white cards with a 1px border */
+.panel {
+  background: #efeee7;
+  border: 1px solid #000000;
+  border-radius: 0; /* sharp */
+}
+
+/* Monaco blends with the panel (no nested card look) */
+.monaco-editor,
+.MuiBox-root .monaco-editor {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+}
+html.dark .monaco-editor,
+html.dark .MuiBox-root .monaco-editor {
+  background: transparent;
+}
+
+.page-title {
+  margin: 0 0 1.25rem 0;
+  font-weight: 700;
+  font-size: clamp(26px, 4vw, 40px);
+  letter-spacing: 0.2px;
+  color: #111;
+}
+
+/* One-pixel hairline cards inside the main panel */
+.editor-frame {
+  border: 1px solid #000000;
+  background: #fff;
+}
+.output-frame {
+  border: 1px solid #000000;
+  background: #fff;
+}
+.monaco-editor .margin {
+  border-right: 1px solid #e1e1e1 !important;
 }
