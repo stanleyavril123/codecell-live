@@ -1,22 +1,37 @@
+/* ====== Colors ====== */
 :root {
+  /* light (kept for toggle) */
   --page: #efeee7;
-  --ink: #000000;
-  --line: #000000;
+  --ink: #000;
+  --line: #000;
   --line-2: #dedede;
   --line-soft: #e1e1e1;
+
+  /* dark */
+  --page-dark: #0f1419; /* page background */
+  --card: #0f161c; /* card surface */
+  --card-2: #0c1217; /* inset panels */
+  --hairline: #263241; /* 1px lines */
+  --muted: #98a6b3; /* secondary text */
+  --ink-dark: #e6edf3; /* primary text */
+  --accent: #2f6feb; /* blue */
+  --accent-2: #1f6feb33; /* blue alpha */
+  --success: #22c55e; /* green dot */
+  --danger: #ef4444; /* stop */
+  --content-max: 1460px;
 }
 
+/* Page */
 html,
 body {
-  background-color: var(--page);
-  color: var(--ink);
+  background-color: var(--page-dark);
+  color: var(--ink-dark);
   margin: 0;
-  padding: 0;
   font-family:
     Inter,
     system-ui,
     -apple-system,
-    Segoe UI,
+    "Segoe UI",
     Roboto,
     Helvetica,
     Arial,
@@ -25,70 +40,147 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-html.dark,
-html.dark body {
-  background-color: #181818;
-  color: #f5f5f5;
-}
-
+/* Root */
 #root {
   min-height: 100vh;
-  background: inherit;
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  padding: 2rem 0;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 16px;
 }
 
+/* Card */
 .panel {
-  background: var(--page);
-  border: 1px solid var(--line);
-  border-radius: 0;
-  padding: 0;
+  width: min(96vw, var(--content-max));
+  margin-inline: auto;
+  background: var(--card);
+  border: 1px solid var(--hairline);
+  border-radius: 14px;
+  overflow: hidden; /* keeps single hairlines */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
 }
 
+/* Toolbar */
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0.5rem 0.75rem;
-  border-bottom: 1px solid var(--line-2);
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--card-2);
+  border-bottom: 1px solid var(--hairline);
 }
 
+/* Segmented tabs for languages */
+.segmented {
+  display: inline-flex;
+  background: #0b1218;
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.segmented button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 8px 12px;
+  font:
+    500 13px/1 Inter,
+    system-ui,
+    sans-serif;
+  cursor: pointer;
+}
+.segmented button + button {
+  border-left: 1px solid var(--hairline);
+}
+.segmented button.active {
+  background: #0f1a22;
+  color: var(--ink-dark);
+}
+
+/* Buttons */
 .MuiButton-root {
-  border-radius: 0 !important;
-  box-shadow: none !important;
+  border-radius: 10px !important;
   text-transform: none !important;
+  box-shadow: none !important;
+}
+.btn-run {
+  background: var(--accent) !important;
+  color: #fff !important;
+}
+.btn-stop {
+  background: #293241 !important;
+  color: var(--ink-dark) !important;
+}
+.btn-clear {
+  background: #202833 !important;
+  color: var(--muted) !important;
+}
+.btn-run:hover {
+  background: #2a64db !important;
+}
+.btn-stop:hover {
+  background: #323d50 !important;
+}
+.btn-clear:hover {
+  background: #263141 !important;
 }
 
-.btn-ghost.MuiButton-root {
-  background: transparent !important;
-  border: none !important;
-  color: var(--ink) !important;
-  padding: 0.35rem 0.5rem !important;
+/* Live indicator */
+.live {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted);
+  font:
+    600 13px/1 Inter,
+    system-ui,
+    sans-serif;
 }
-.btn-ghost.MuiButton-root:hover {
-  background: transparent !important;
-  text-decoration: underline;
+.live .dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--success);
 }
+
+/* Editor & output */
 .editor-frame {
-  border: 0;
-  border-bottom: 1px solid var(--ink);
-  border-radius: 0;
-  background: #fff;
+  background: #0f161c;
+}
+.monaco-editor,
+.monaco-editor-background {
+  background: #0f161c !important;
 }
 
-.output-frame {
-  border: 0;
-  border-radius: 0;
-  background: var(--page);
-}
+/* Monaco gutter hairline */
 .monaco-editor .margin {
-  border-right: 1px solid var(--line-soft) !important;
+  border-right: 1px solid var(--hairline) !important;
 }
 
-@media (max-width: 600px) {
-  .page-title {
-    font-size: 40px;
-  }
+/* Output */
+.output-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 14px;
+  background: var(--card-2);
+  border-top: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--hairline);
+  font:
+    600 14px/1 Inter,
+    system-ui,
+    sans-serif;
+  color: var(--muted);
+}
+.output-body {
+  padding: 12px 14px 18px;
+  background: var(--card);
+  font-family: "IBM Plex Mono", ui-monospace, Menlo, Monaco, Consolas,
+    "Liberation Mono", monospace;
+  color: var(--ink-dark);
+  font-size: 14px;
+  line-height: 22px;
+  white-space: pre-wrap;
 }
