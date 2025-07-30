@@ -34,7 +34,7 @@ const LanguageSelector = ({ language, onSelect }: Props) => {
         aria-haspopup="true"
         aria-expanded={open ? "true" : undefined}
         endIcon={<KeyboardArrowDownIcon fontSize="small" />}
-        onClick={(e) => setAnchorEl(e.currentTarget)}
+        onClick={handleClick}
       >
         {language}
       </Button>
