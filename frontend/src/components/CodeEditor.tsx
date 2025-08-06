@@ -24,10 +24,10 @@ const CodeEditor = () => {
       rules: [
         { token: "", foreground: "E6EDF3" },
         { token: "comment", foreground: "7D8590" },
-        { token: "string",  foreground: "A5D6FF" },
-        { token: "number",  foreground: "F2CC60" },
+        { token: "string", foreground: "A5D6FF" },
+        { token: "number", foreground: "F2CC60" },
         { token: "keyword", foreground: "79C0FF" },
-        { token: "type",    foreground: "B6E3FF" },
+        { token: "type", foreground: "B6E3FF" },
       ],
       colors: {
         "editor.background": "#0f161c",
@@ -52,6 +52,18 @@ const CodeEditor = () => {
     setJobId(id);
     setOutput("");
     const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${id}`);
+
+    ws.onopen = () => {
+      console.log(`WS open for job : ${id}`);
+    };
+
+    ws.onclose = () => {
+      console.log(`WS closed for job: ${id}`);
+
+      ws.onerror = () => {
+        console.log(`WS error for job : ${id}`);
+      };
+    };
     ws.onmessage = (e) => {
       try {
         const chunk = JSON.parse(e.data as string) as
@@ -61,7 +73,8 @@ const CodeEditor = () => {
 
         if (chunk.type === "stdout") setOutput((o) => o + chunk.data);
         if (chunk.type === "stderr") setOutput((o) => o + "\n" + chunk.data);
-        if (chunk.type === "exit") setOutput((o) => o + `\nexit ${chunk.data}\n`);
+        if (chunk.type === "exit")
+          setOutput((o) => o + `\nexit ${chunk.data}\n`);
       } catch {}
     };
   };
@@ -91,7 +104,8 @@ const CodeEditor = () => {
         <Box sx={{ flex: 1 }} />
         {jobId && (
           <div className="live" title={`job: ${jobId}`}>
-            <span className="dot" /> LIVE <span style={{ opacity: .65 }}>job:</span> {jobId.slice(0, 8)}
+            <span className="dot" /> LIVE{" "}
+            <span style={{ opacity: 0.65 }}>job:</span> {jobId.slice(0, 8)}
           </div>
         )}
       </Box>
@@ -126,4 +140,3 @@ const CodeEditor = () => {
 };
 
 export default CodeEditor;
-
