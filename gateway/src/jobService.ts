@@ -25,7 +25,7 @@ class JobService {
 
     setTimeout(() => {
       this.broadcast(job.id, { type: "stdout", data: "hello from stub\\n" });
-      this.broadcast(job.id, { type: "exit", code: 0 });
+      this.broadcast(job.id, { type: "exit", data: 0 });
       this.jobs.delete(job.id);
     }, 100);
 

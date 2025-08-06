@@ -6,6 +6,7 @@ import LanguageSelector from "./LanguageSelector";
 import OutputPanel from "./OutputPanel";
 import RunButton from "./RunButton";
 import { LANGUAGE_VERSION, type UiLanguage } from "../constants";
+import { OutputChunkSchema, type OutputChunk } from "../schemas";
 
 type EditorType = MonacoNS.editor.IStandaloneCodeEditor;
 
@@ -65,17 +66,33 @@ const CodeEditor = () => {
       };
     };
     ws.onmessage = (e) => {
+      let json: unknown;
       try {
-        const chunk = JSON.parse(e.data as string) as
-          | { type: "stdout"; data: string }
-          | { type: "stderr"; data: string }
-          | { type: "exit"; data: number };
+        json = JSON.parse(e.data as string);
+      } catch (err) {
+        console.error("WS bad JSON", err, e.data);
+        return;
+      }
 
-        if (chunk.type === "stdout") setOutput((o) => o + chunk.data);
-        if (chunk.type === "stderr") setOutput((o) => o + "\n" + chunk.data);
-        if (chunk.type === "exit")
-          setOutput((o) => o + `\nexit ${chunk.data}\n`);
-      } catch {}
+      const parsed = OutputChunkSchema.safeParse(json);
+      if (!parsed.success) {
+        console.warn("WS bad chunk shape", parsed.error.format());
+        return;
+      }
+
+      const chunk: OutputChunk = parsed.data;
+
+      switch (chunk.type) {
+        case "stdout":
+          setOutput((o) => o + chunk.data);
+          break;
+        case "stderr":
+          setOutput((o) => o + "\n" + chunk.data);
+          break;
+        case "exit":
+          setOutput((o) => o + `\nexit ${chunk.data}`);
+          break;
+      }
     };
   };
 
