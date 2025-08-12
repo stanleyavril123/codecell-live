@@ -1,4 +1,5 @@
 import { v4 as uuid } from "uuid";
+import { ChunkSchema } from "../../shared/schemas";
 import WebSocket from "ws";
 
 type Job = {
@@ -46,13 +47,21 @@ class JobService {
 
   private broadcast(jobId: string, chunk: unknown) {
     const job = this.jobs.get(jobId);
-    if (!job) return;
+    if (!job) return false;
 
     const msg = JSON.stringify(chunk);
 
     job.sockets.forEach((s) => {
       s.readyState === s.OPEN && s.send(msg);
     });
+    return true;
+  }
+  public pushChunk(jobId: string, chunk: unknown): boolean {
+    const paresd = ChunkSchema.safeParse(chunk);
+    if (!paresd.success) {
+      return false;
+    }
+    return this.broadcast(jobId, paresd.data);
   }
 }
 

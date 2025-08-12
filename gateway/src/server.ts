@@ -4,6 +4,7 @@ import cors from "cors";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { WebSocketServer, WebSocket } from "ws";
 import { appRouter } from "./router";
+import { internalRouter } from "./internal";
 import { jobService } from "./jobService";
 
 const app = express();
@@ -18,6 +19,7 @@ app.use(
   }),
 );
 
+app.use("/internal", internalRouter)
 const server = http.createServer(app);
 const wss = new WebSocketServer({ server, path: "/stream" });
 

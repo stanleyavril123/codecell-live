@@ -6,7 +6,7 @@ import LanguageSelector from "./LanguageSelector";
 import OutputPanel from "./OutputPanel";
 import RunButton from "./RunButton";
 import { LANGUAGE_VERSION, type UiLanguage } from "../constants";
-import { OutputChunkSchema, type OutputChunk } from "../schemas";
+import { ChunkSchema, type OutputChunk } from "../../../shared/schemas";
 
 type EditorType = MonacoNS.editor.IStandaloneCodeEditor;
 
@@ -74,7 +74,7 @@ const CodeEditor = () => {
         return;
       }
 
-      const parsed = OutputChunkSchema.safeParse(json);
+      const parsed = ChunkSchema.safeParse(json);
       if (!parsed.success) {
         console.warn("WS bad chunk shape", parsed.error.format());
         return;
