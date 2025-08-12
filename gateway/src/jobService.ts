@@ -11,7 +11,7 @@ type Job = {
 class JobService {
   private jobs = new Map<string, Job>();
 
-  enqueue(req: { language: string; source: string }): string {
+  create(req: { language: string; source: string }): string {
     const job: Job = {
       id: uuid(),
       req,

@@ -49,7 +49,7 @@ const CodeEditor = () => {
     editor.focus();
   };
 
-  const handleStarted = (id: string) => {
+  const onStarted = (id: string) => {
     setJobId(id);
     setOutput("");
     const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${id}`);
@@ -104,7 +104,7 @@ const CodeEditor = () => {
         <RunButton
           language={LANGUAGE_VERSION[language]}
           source={source}
-          onStarted={handleStarted}
+          onStarted={onStarted}
         />
 
         <Button size="small" className="btn-stop" disabled>

@@ -14,7 +14,7 @@ export const appRouter = t.router({
     )
     .output(z.object({ jobId: z.string() }))
     .mutation(({ input }) => {
-      const jobId = jobService.enqueue(input);
+      const jobId = jobService.create(input);
       return { jobId };
     }),
 });
