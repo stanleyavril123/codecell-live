@@ -55,20 +55,22 @@ const CodeEditor = () => {
     const ws = new WebSocket(`ws://localhost:4000/stream?jobId=${id}`);
 
     ws.onopen = () => {
-      console.log(`WS open for job : ${id}`);
+      console.log("WS open for job:", id);
+    };
+
+    ws.onerror = (e) => {
+      console.error("WS error for job:", id, e);
     };
 
     ws.onclose = () => {
-      console.log(`WS closed for job: ${id}`);
-
-      ws.onerror = () => {
-        console.log(`WS error for job : ${id}`);
-      };
+      console.log("WS closed for job:", id);
     };
+
     ws.onmessage = (e) => {
+      console.log("WS raw:", e.data); 
       let json: unknown;
       try {
-        json = JSON.parse(e.data as string);
+        json = JSON.parse(String(e.data));
       } catch (err) {
         console.error("WS bad JSON", err, e.data);
         return;
@@ -81,79 +83,77 @@ const CodeEditor = () => {
       }
 
       const chunk: OutputChunk = parsed.data;
-
-      switch (chunk.type) {
-        case "stdout":
-          setOutput((o) => o + chunk.data);
-          break;
-        case "stderr":
-          setOutput((o) => o + "\n" + chunk.data);
-          break;
-        case "exit":
-          setOutput((o) => o + `\nexit ${chunk.data}`);
-          break;
-      }
+      setOutput((o) => {
+        switch (chunk.type) {
+          case "stdout":
+            return o + chunk.data;
+          case "stderr":
+            return o + "\n" + chunk.data;
+          case "exit":
+            return o + `\nexit ${chunk.data}`;
+        }
+      });
     };
+  }
+
+    return (
+      <Box className="panel">
+        <Box className="toolbar">
+          <LanguageSelector language={language} onSelect={setLanguage} />
+
+          <RunButton
+            language={LANGUAGE_VERSION[language]}
+            source={source}
+            onStarted={onStarted}
+          />
+
+          <Button size="small" className="btn-stop" disabled>
+            Stop
+          </Button>
+          <Button
+            size="small"
+            className="btn-clear"
+            onClick={() => setOutput("")}
+          >
+            Clear
+          </Button>
+
+          <Box sx={{ flex: 1 }} />
+          {jobId && (
+            <div className="live" title={`job: ${jobId}`}>
+              <span className="dot" /> LIVE{" "}
+              <span style={{ opacity: 0.65 }}>job:</span> {jobId.slice(0, 8)}
+            </div>
+          )}
+        </Box>
+
+        <Box className="editor-frame">
+          <Editor
+            height="52vh"
+            value={source}
+            beforeMount={beforeMount}
+            theme={"codecell-dark"}
+            onMount={onMount}
+            language={language}
+            onChange={(value) => setSource(value ?? "")}
+            options={{
+              minimap: { enabled: false },
+              roundedSelection: false,
+              cursorBlinking: "smooth",
+              scrollBeyondLastLine: false,
+              renderLineHighlight: "none",
+              fontFamily:
+                "'IBM Plex Mono','JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
+              fontSize: 16,
+              lineHeight: 24,
+              padding: { top: 14, bottom: 14 },
+            }}
+          />
+        </Box>
+
+        <OutputPanel title="stdout" output={output} />
+      </Box>
+    );
   };
 
-  return (
-    <Box className="panel">
-      <Box className="toolbar">
-        <LanguageSelector language={language} onSelect={setLanguage} />
-
-        <RunButton
-          language={LANGUAGE_VERSION[language]}
-          source={source}
-          onStarted={onStarted}
-        />
-
-        <Button size="small" className="btn-stop" disabled>
-          Stop
-        </Button>
-        <Button
-          size="small"
-          className="btn-clear"
-          onClick={() => setOutput("")}
-        >
-          Clear
-        </Button>
-
-        <Box sx={{ flex: 1 }} />
-        {jobId && (
-          <div className="live" title={`job: ${jobId}`}>
-            <span className="dot" /> LIVE{" "}
-            <span style={{ opacity: 0.65 }}>job:</span> {jobId.slice(0, 8)}
-          </div>
-        )}
-      </Box>
-
-      <Box className="editor-frame">
-        <Editor
-          height="52vh"
-          value={source}
-          beforeMount={beforeMount}
-          theme={"codecell-dark"}
-          onMount={onMount}
-          language={language}
-          onChange={(value) => setSource(value ?? "")}
-          options={{
-            minimap: { enabled: false },
-            roundedSelection: false,
-            cursorBlinking: "smooth",
-            scrollBeyondLastLine: false,
-            renderLineHighlight: "none",
-            fontFamily:
-              "'IBM Plex Mono','JetBrains Mono', ui-monospace, Menlo, Monaco, Consolas, 'Liberation Mono', monospace",
-            fontSize: 16,
-            lineHeight: 24,
-            padding: { top: 14, bottom: 14 },
-          }}
-        />
-      </Box>
-
-      <OutputPanel title="stdout" output={output} />
-    </Box>
-  );
-};
-
-export default CodeEditor;
+  export default CodeEditor

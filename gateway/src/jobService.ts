@@ -19,16 +19,8 @@ class JobService {
       sockets: new Set(),
       status: "queued",
     };
-
+    console.log("[gateway] Creating job:", job.id, "with req:", req);
     this.jobs.set(job.id, job);
-
-    // fake code run : ...
-
-    setTimeout(() => {
-      this.broadcast(job.id, { type: "stdout", data: "hello from stub\\n" });
-      this.broadcast(job.id, { type: "exit", data: 0 });
-      this.jobs.delete(job.id);
-    }, 100);
 
     return job.id;
   }
@@ -36,6 +28,7 @@ class JobService {
   attach(jobId: string, ws: WebSocket) {
     const job = this.jobs.get(jobId);
     if (!job) {
+      console.warn("[internal] pushChunk returned false for jobId:", jobId);
       return ws.close();
     }
     job.sockets.add(ws);
@@ -45,6 +38,9 @@ class JobService {
     this.jobs.get(jobId)?.sockets.delete(ws);
   }
 
+  hasJob(id: string) {
+    return this.jobs.has(id);
+  }
   private broadcast(jobId: string, chunk: unknown) {
     const job = this.jobs.get(jobId);
     if (!job) return false;
