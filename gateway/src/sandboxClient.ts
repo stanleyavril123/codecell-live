@@ -4,7 +4,7 @@ const SANDBOX_URL = "http://localhost:5000";
 
 export async function startSandboxRun(args: {
   jobId: string;
-  language: "js" | "ts" | "py";
+  language: "js" | "ts" | "py" | "php" | "cs" | "java";
   source: string;
 }) {
   try {
