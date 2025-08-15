@@ -20,4 +20,5 @@ Thumbs.db
 # ── Environment secrets ──────────────────────────
 .env
 .env.*
-
+# VM artifacts
+artifacts/
