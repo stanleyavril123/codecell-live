@@ -1,6 +1,7 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
 import { jobService } from "./jobService";
+import { startSandboxRun } from "./sandboxClient";
 
 const t = initTRPC.create();
 
@@ -14,7 +15,12 @@ export const appRouter = t.router({
     )
     .output(z.object({ jobId: z.string() }))
     .mutation(({ input }) => {
-      const jobId = jobService.enqueue(input);
+      const jobId = jobService.create(input);
+      startSandboxRun({
+        jobId,
+        language: input.language,
+        source: input.source,
+      });
       return { jobId };
     }),
 });
