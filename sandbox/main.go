@@ -9,7 +9,9 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 )
 
@@ -39,12 +41,13 @@ func runHandler(w http.ResponseWriter, r *http.Request) {
 		_, _ = w.Write([]byte("failed to start VM"))
 		return
 	}
-	sendChunk(req.JobID, "stdout", "VM started. (init=/bin/sh)\n")
-	sendChunk(req.JobID, "exit", 0)
-	w.WriteHeader(http.StatusOK)
-	_, _ = w.Write([]byte("ok"))
+	switch req.Language {
+	case "py":
+		break
 
+	}
 }
+
 func sendChunk(jobId string, chunkType string, data any) {
 	chunk, err := json.Marshal(Chunk{Type: chunkType, Data: data})
 	if err != nil {
@@ -73,7 +76,7 @@ func startVM(jobId string) error {
 	if err := cmd.Start(); err != nil {
 		return err
 	}
-	time.Sleep(500 * time.Millisecond)
+	time.Sleep(500 * time.Millisecond) // change sleep later
 
 	client := &http.Client{
 		Transport: &http.Transport{
@@ -82,83 +85,80 @@ func startVM(jobId string) error {
 			},
 		},
 	}
-	// Configure machine
-	machineCfg := []byte(`{"vcpu_count":1,"mem_size_mib":256,"smt":false}`)
-	req, err := http.NewRequest("PUT", "http://localhost/machine-config", bytes.NewReader(machineCfg))
+	//machine-config
+	if err := putJSON(client, "http://localhost/machine-config",
+		[]byte(`{"vcpu_count":1,"mem_size_mib":256,"smt":false}`)); err != nil {
+		return err
+	}
+
+	//boot source
+	kernelPath, err := mustAbs("../artifacts/vmlinux.bin")
+	if err != nil {
+		return fmt.Errorf("kernel path: %w", err)
+	}
+	bootSrc := fmt.Sprintf(`{"kernel_image_path":%q,"boot_args":"console=ttyS0 reboot=k panic=1 pci=off init=/bin/sh"}`, kernelPath)
+	if err := putJSON(client, "http://localhost/boot-source", []byte(bootSrc)); err != nil {
+		return err
+	}
+
+	//rootfs
+	rootfsPath, err := mustAbs("../artifacts/rootfs.ext4")
+	if err != nil {
+		return fmt.Errorf("kernel path: %w", err)
+	}
+	rootfs := fmt.Sprintf(`{"drive_id":"rootfs","path_on_host":%q,"is_root_device":true,"is_read_only":false}`, rootfsPath)
+	if err := putJSON(client, "http://localhost/drives/rootfs", []byte(rootfs)); err != nil {
+		return err
+	}
+	//vsock
+	uds := fmt.Sprintf("/tmp/vsock-%s.sock", jobId)
+	payload := fmt.Sprintf(`{"guest_cid":3,"uds_path":%q}`, uds)
+	if err := putJSON(client, "http://localhost/vsocks/vsock0", []byte(payload)); err != nil {
+		return fmt.Errorf("vsock setup failed: %w", err)
+	}
+
+	//start instance
+	if err := putJSON(client, "http://localhost/actions",
+		[]byte(`{"action_type":"InstanceStart"}`)); err != nil {
+		return err
+	}
+
+	log.Println("VM started for job:", jobId)
+	return nil
+}
+func putJSON(client *http.Client, url string, payload []byte) error {
+	req, err := http.NewRequest("PUT", url, bytes.NewReader(payload))
 	if err != nil {
 		return err
 	}
 	req.Header.Set("Content-Type", "application/json")
-
 	resp, err := client.Do(req)
 	if err != nil {
 		return err
 	}
 	defer resp.Body.Close()
-	bootSrc := []byte(`{
-  "kernel_image_path":"../artifacts/vmlinux.bin",
-  "boot_args":"console=ttyS0 reboot=k panic=1 pci=off init=/bin/sh"
-}`)
-	req, err = http.NewRequest("PUT", "http://localhost/boot-source", bytes.NewReader(bootSrc))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("boot-source failed: %s: %s", resp.Status, string(b))
+		return fmt.Errorf("%s failed: %s: %s", url, resp.Status, string(b))
 	}
-
-	// Rootfs
-	rootfs := []byte(`{
-  "drive_id":"rootfs",
-  "path_on_host":"../artifacts/rootfs.ext4",
-  "is_root_device":true,
-  "is_read_only":false
-}`)
-	req, err = http.NewRequest("PUT", "http://localhost/drives/rootfs", bytes.NewReader(rootfs))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("drives/rootfs failed: %s: %s", resp.Status, string(b))
-	}
-
-	// Start VM
-	start := []byte(`{ "action_type": "InstanceStart" }`)
-	req, err = http.NewRequest("PUT", "http://localhost/actions", bytes.NewReader(start))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err = client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		b, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("actions start failed: %s: %s", resp.Status, string(b))
-	}
-
-	fmt.Println("VM started for job:", jobId)
 	return nil
 }
+
+func mustAbs(p string) (string, error) {
+	ap, err := filepath.Abs(p)
+	if err != nil {
+		return "", err
+	}
+	st, err := os.Stat(ap)
+	if err != nil {
+		return "", fmt.Errorf("%s not accessible: %w", ap, err)
+	}
+	if st.IsDir() {
+		return "", fmt.Errorf("%s is a directory, expected file", ap)
+	}
+	return ap, nil
+}
+
 func main() {
 	http.HandleFunc("/run", runHandler)
 	log.Println("Sandbox listening on :5000")
