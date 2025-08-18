@@ -159,6 +159,44 @@ func mustAbs(p string) (string, error) {
 	return ap, nil
 }
 
+func runPythonInGuest(jobId string, code string) (string, error) {
+	uds := fmt.Sprintf("/tmp/vsock-%s.sock", jobId)
+	if err := waitForHostVsock(uds, 3*time.Second); err != nil {
+		return "", fmt.Errorf("vsock uds not ready: %w", err)
+	}
+	c, err := net.Dial("unix", uds)
+	if err != nil {
+		return "", fmt.Errorf("dial vsock uds: %w", err)
+	}
+	defer c.Close()
+
+	if _, err := c.Write([]byte("CONNECT 8000\n")); err != nil {
+		return "", fmt.Errorf("send CONNECT: %w", err)
+	}
+	if _, err := c.Write([]byte(code)); err != nil {
+		return "", fmt.Errorf("write code: %w", err)
+	}
+	out, err := io.ReadAll(c)
+	if err != nil {
+		return "", fmt.Errorf("read output: %w", err)
+	}
+	return string(out), nil
+}
+
+
+func waitForHostVsock(path string, timeout time.Duration) error {
+	deadline := time.Now().Add(timeout)
+	for time.Now().Before(deadline) {
+		if _, err := os.Stat(path); err == nil {
+			if conn, err := net.Dial("unix", path); err == nil {
+				conn.Close()
+				return nil
+			}
+		}
+		time.Sleep(50 * time.Millisecond)
+	}
+	return fmt.Errorf("timeout waiting for %s", path)
+}
 func main() {
 	http.HandleFunc("/run", runHandler)
 	log.Println("Sandbox listening on :5000")
