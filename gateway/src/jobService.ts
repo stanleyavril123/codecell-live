@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { ChunkSchema, OutputChunk } from "../../shared/schemas";
+import { ChunkSchema, OutputChunk } from "../../shared/chunks";
 import WebSocket from "ws";
 
 type Job = {

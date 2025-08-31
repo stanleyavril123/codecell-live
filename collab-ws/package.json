@@ -13,5 +13,10 @@
     "http-server": "^14.1.1",
     "nanoid": "^5.1.5",
     "ws": "^8.18.3"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.2"
   }
 }

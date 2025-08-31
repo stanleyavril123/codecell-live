@@ -6,7 +6,7 @@ import LanguageSelector from "./LanguageSelector";
 import OutputPanel from "./OutputPanel";
 import RunButton from "./RunButton";
 import { LANGUAGE_VERSION, type UiLanguage } from "../constants";
-import { ChunkSchema, type OutputChunk } from "../../../shared/schemas";
+import { ChunkSchema, type OutputChunk } from "../../../shared/chunks";
 
 type EditorType = MonacoNS.editor.IStandaloneCodeEditor;
 
