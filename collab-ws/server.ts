@@ -1,7 +1,9 @@
 import * as http from "http";
-import { WebSocket } from "ws";
+import { RawData, WebSocket } from "ws";
 import { customAlphabet } from "nanoid";
 import { parseIncoming, Outgoing } from "../shared/messages";
+import { parse } from "path";
+import { warn } from "console";
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
 
@@ -60,7 +62,7 @@ function broadcast(
     if (clientId === senderId) continue;
     try {
       client.ws.send(str);
-    } catch {}
+    } catch { }
   }
 }
 
@@ -84,5 +86,70 @@ wss.on("connection", (ws: WebSocket) => {
     name: null,
     lastPong: Date.now(),
   };
-  ws.on("message", (raw) => {});
+  ws.on("message", (raw: RawData) => {
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(raw.toString());
+    } catch {
+      return;
+    }
+
+    const msg = parseIncoming(parsed);
+    if (!msg) return;
+
+    switch (msg.tag) {
+      case "join": {
+        sess.padId = String(msg.padId || "");
+        sess.userId = String(msg.userId || nanoid());
+        sess.name = String(msg.name || "guest");
+
+        if (!sess.padId) return;
+
+        const room = getRoom(sess.padId);
+        const color = assignColor(room, sess.userId);
+
+        room.clients.set(sess.userId, { ws, sess, color });
+
+        const peers = [...room.clients.entries()]
+          .filter(([uid]) => uid !== sess.userId)
+          .map(([uid, c]) => ({
+            userId: uid,
+            name: c.sess.name ?? "guest",
+            color: c.color,
+          }));
+
+        ws.send(
+          JSON.stringify({
+            tag: "welcome",
+            you: { userId: sess.userId, color },
+            peers,
+          } as Outgoing),
+        );
+        broadcast(
+          sess.padId,
+          {
+            tag: "peer-join",
+            user: { userId: sess.userId, name: sess.name ?? "guest", color },
+          },
+          sess.userId,
+        );
+        break;
+      }
+      case "pong": {
+        sess.lastPong = Date.now();
+        break;
+      }
+      case "cursor": {
+        if (!sess.padId || !sess.userId) return;
+        broadcast(
+          sess.padId,
+          { tag: "cursor", userId: sess.userId, range: msg.range },
+          sess.userId,
+        );
+        break;
+      }
+    }
+  });
+  ws.on("close", () => cleanup(sess));
+  ws.on("error", () => cleanup(sess));
 });
