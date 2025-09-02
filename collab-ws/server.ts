@@ -2,8 +2,6 @@ import * as http from "http";
 import { RawData, WebSocket } from "ws";
 import { customAlphabet } from "nanoid";
 import { parseIncoming, Outgoing } from "../shared/messages";
-import { parse } from "path";
-import { warn } from "console";
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
 
@@ -31,6 +29,8 @@ const color_palette = [
   "#fb7185",
   "#f97316",
 ];
+const PING_INTERVAL_MS = 10_000;
+const CLIENT_TTL_MS = 30_000;
 
 function getRoom(padId: string): Room {
   let room = rooms.get(padId);
@@ -153,3 +153,25 @@ wss.on("connection", (ws: WebSocket) => {
   ws.on("close", () => cleanup(sess));
   ws.on("error", () => cleanup(sess));
 });
+
+setInterval(() => {
+  for (const [, room] of rooms) {
+    for (const [uid, c] of room.clients) {
+      try {
+        c.ws.send(
+          JSON.stringify({ tag: "ping", time: Date.now() } as Outgoing),
+        );
+      } catch { }
+      if (Date.now() - c.sess.lastPong > CLIENT_TTL_MS) {
+        try {
+          c.ws.close();
+        } catch { }
+        room.clients.delete(uid);
+        broadcast(c.sess.padId!, { tag: "peer-leave", userId: uid });
+      }
+    }
+  }
+}, PING_INTERVAL_MS);
+
+const PORT = Number(process.env.PORT || 4100);
+server.listen(PORT, () => console.log(`collab-ws listening on :${PORT} /ws`));

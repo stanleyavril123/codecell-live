@@ -1,23 +1,23 @@
 {
   "name": "collab-ws",
   "version": "1.0.0",
-  "main": "index.js",
+  "private": true,
+  "type": "commonjs",
+  "main": "dist/server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "ts-node server.ts",
+    "build": "tsc -p .",
+    "start": "node dist/server.js",
+    "test": "echo \"no tests\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
   "dependencies": {
-    "http-server": "^14.1.1",
     "nanoid": "^5.1.5",
     "ws": "^8.18.3"
   },
   "devDependencies": {
-    "@types/node": "^24.3.0",
-    "@types/ws": "^8.18.1",
+    "@types/node": "^20.12.12",
+    "@types/ws": "^8.5.10",
     "ts-node": "^10.9.2",
-    "typescript": "^5.9.2"
+    "typescript": "^5.4.5"
   }
 }
