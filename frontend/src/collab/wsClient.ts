@@ -1,6 +1,5 @@
 import { WebSocket } from "ws";
-import { Outgoing } from "../shared/messages";
-import { close } from "inspector";
+import type { Outgoing } from "../../../shared/messages";
 
 export type CollabWSOpts = {
   url: string;
@@ -19,7 +18,7 @@ export type RangeXY = {
 
 export type Peer = { userId: string; name: string; color: string };
 
-type Handlers = {
+export type Handlers = {
   onWelcome(peers: Peer[], you: { userId: string; color: string }): void;
   onPeerJoin(user: Peer): void;
   onPeerLeave(userId: string): void;
@@ -32,6 +31,7 @@ type Handlers = {
 export function createCollabWS(opts: CollabWSOpts) {
   const ws = new WebSocket(opts.url);
   ws.addEventListener("open", () => {
+    1;
     ws.send(
       JSON.stringify({
         tag: "join",
@@ -68,7 +68,7 @@ export function createCollabWS(opts: CollabWSOpts) {
     }
   });
   return {
-    sendCursor(range: Range) {
+    sendCursor(range: RangeXY) {
       try {
         ws.send(JSON.stringify({ tag: "cursor", range }));
       } catch (error) {

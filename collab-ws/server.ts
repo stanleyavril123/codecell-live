@@ -2,20 +2,9 @@ import * as http from "http";
 import { RawData, WebSocket } from "ws";
 import { customAlphabet } from "nanoid";
 import { parseIncoming, Outgoing } from "../shared/messages";
+import { Room, Sess } from "./types";
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
-
-type Sess = {
-  id: string;
-  padId: string | null;
-  userId: string | null;
-  name: string | null;
-  lastPong: number;
-};
-
-type Client = { ws: WebSocket; sess: Sess; color: string };
-
-type Room = { clients: Map<string, Client>; colors: Map<string, string> };
 
 const rooms = new Map<string, Room>();
 
@@ -29,6 +18,7 @@ const color_palette = [
   "#fb7185",
   "#f97316",
 ];
+
 const PING_INTERVAL_MS = 10_000;
 const CLIENT_TTL_MS = 30_000;
 
