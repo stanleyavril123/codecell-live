@@ -10,4 +10,7 @@ export type Client = { ws: WebSocket; sess: Sess; color: string };
 
 export type Room = { clients: Map<string, Client>; colors: Map<string, string> };
 
-
+export type HeartbeatOptions = {
+  pingIntervalMs?: number;
+  clientTtlMs?: number;
+};
