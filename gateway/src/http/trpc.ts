@@ -1,6 +1,6 @@
 import { initTRPC } from "@trpc/server";
 import { z } from "zod";
-import { jobService } from "../services/jobService";
+import { jobService } from "../services/job.service";
 import { startSandboxRun } from "../client/sandboxClient";
 
 const t = initTRPC.create();

@@ -1,6 +1,6 @@
 import http, { IncomingMessage } from "http";
 import { WebSocketServer, WebSocket } from "ws";
-import { jobService } from "./services/jobService";
+import { jobService } from "./services/job.service";
 import { createApp } from "./http/router";
 
 const app = createApp()
