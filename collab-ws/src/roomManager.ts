@@ -1,5 +1,5 @@
 import { Outgoing } from "../../shared/messages";
-import { Room, Sess } from "./types";
+import { Room, Sess } from "./shared/types";
 
 
 const color_palette = [
@@ -13,7 +13,7 @@ const color_palette = [
   "#f97316",
 ];
 
-export class RoomStore {
+export class RoomManger {
 
   private rooms = new Map<string, Room>();
 

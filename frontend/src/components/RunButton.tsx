@@ -1,5 +1,5 @@
 import { Button } from "@mui/material";
-import { trpc } from "../trcp";
+import { trpc } from "../trpc";
 import type { ApiLanguage } from "../constants";
 type Props = {
   language: ApiLanguage;

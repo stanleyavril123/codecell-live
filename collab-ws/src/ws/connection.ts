@@ -1,12 +1,12 @@
-import { RoomStore } from "./room";
+import { RoomManger } from "../roomManager";
 import WebSocket, { RawData } from "ws";
-import { Sess } from "./types";
-import { Outgoing, parseIncoming } from "../../shared/messages";
+import { Sess } from "../shared/types";
+import { Outgoing, parseIncoming } from "../../../shared/messages";
 import { customAlphabet } from "nanoid";
 
 const nanoid = customAlphabet("0123456789abcdefghijklmnopqrstuvwxyz", 10);
 
-export function handleConnection(ws: WebSocket, store: RoomStore) {
+export function handleConnection(ws: WebSocket, roomManger: RoomManger) {
 
   const sess: Sess = {
     id: nanoid(),
@@ -34,8 +34,8 @@ export function handleConnection(ws: WebSocket, store: RoomStore) {
 
         if (!sess.padId) return;
 
-        const room = store.getRoom(sess.padId);
-        const color = store.assignColor(room, sess.userId);
+        const room = roomManger.getRoom(sess.padId);
+        const color = roomManger.assignColor(room, sess.userId);
 
         room.clients.set(sess.id, { ws, sess, color });
         const peersMap = new Map<string, { userId: string; name: string; color: string }>();
@@ -61,7 +61,7 @@ export function handleConnection(ws: WebSocket, store: RoomStore) {
             peers,
           } as Outgoing),
         );
-        store.broadcast(
+        roomManger.broadcast(
           sess.padId,
           {
             tag: "peer-join",
@@ -77,7 +77,7 @@ export function handleConnection(ws: WebSocket, store: RoomStore) {
       }
       case "cursor": {
         if (!sess.padId || !sess.userId) return;
-        store.broadcast(
+        roomManger.broadcast(
           sess.padId,
           { tag: "cursor", userId: sess.userId, range: msg.range },
           sess.id,
@@ -86,6 +86,6 @@ export function handleConnection(ws: WebSocket, store: RoomStore) {
       }
     }
   });
-  ws.on("close", () => store.cleanup(sess));
-  ws.on("error", () => store.cleanup(sess));
+  ws.on("close", () => roomManger.cleanup(sess));
+  ws.on("error", () => roomManger.cleanup(sess));
 }

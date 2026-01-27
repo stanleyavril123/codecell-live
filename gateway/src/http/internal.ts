@@ -1,6 +1,6 @@
 import { Router } from "express";
-export const internalRouter = Router();
 import { jobService } from "../services/job.service"
+export const internalRouter = Router();
 
 internalRouter.post("/jobs/:jobId/chunk", (req, res) => {
   const jobId = req.params.jobId;

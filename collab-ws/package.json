@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "main": "dist/server.js",
+  "main": "dist/main.js",
   "scripts": {
-    "dev": "ts-node server.ts",
+    "dev": "ts-node src/main.ts",
     "build": "tsc -p .",
     "start": "node dist/server.js",
     "test": "echo \"no tests\""
