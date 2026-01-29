@@ -15,6 +15,7 @@ export function handleConnection(ws: WebSocket, roomManger: RoomManger) {
     name: null,
     lastPong: Date.now(),
   };
+
   ws.on("message", (raw: RawData) => {
     let parsed: unknown;
     try {
@@ -28,11 +29,12 @@ export function handleConnection(ws: WebSocket, roomManger: RoomManger) {
 
     switch (msg.tag) {
       case "join": {
-        sess.padId = String(msg.padId || "");
-        sess.userId = String(msg.userId || nanoid());
-        sess.name = String(msg.name || "guest");
+        const padId = msg.padId?.trim();
+        if (!padId) return;
 
-        if (!sess.padId) return;
+        sess.padId = padId;
+        sess.userId = msg.userId ?? nanoid();
+        sess.name = msg.name ?? "guest";
 
         const room = roomManger.getRoom(sess.padId);
         const color = roomManger.assignColor(room, sess.userId);

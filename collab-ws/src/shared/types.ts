@@ -1,3 +1,5 @@
+import { WebSocket } from "ws";
+
 export type Sess = {
   id: string;
   padId: string | null;

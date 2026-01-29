@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
 import type { Outgoing } from "../../../shared/messages";
 
-export type CollabWSOpts = {
+type CollabWSOpts = {
   url: string;
   padId: string;
   userId: string;
@@ -9,16 +9,16 @@ export type CollabWSOpts = {
   handlers: Handlers;
 };
 
-export type RangeXY = {
+type RangeXY = {
   yStart: number;
   xStart: number;
   yEnd: number;
   xEnd: number;
 };
 
-export type Peer = { userId: string; name: string; color: string };
+type Peer = { userId: string; name: string; color: string };
 
-export type Handlers = {
+type Handlers = {
   onWelcome(peers: Peer[], you: { userId: string; color: string }): void;
   onPeerJoin(user: Peer): void;
   onPeerLeave(userId: string): void;
