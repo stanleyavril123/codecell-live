@@ -3,20 +3,19 @@
   "version": "1.0.0",
   "private": true,
   "type": "commonjs",
-  "main": "dist/main.js",
+  "main": "build/main.js",
   "scripts": {
     "dev": "ts-node src/main.ts",
     "build": "tsc -p .",
-    "start": "node dist/server.js",
+    "start": "node build/main.js",
     "test": "echo \"no tests\""
   },
   "dependencies": {
-    "nanoid": "^5.1.5",
-    "ws": "^8.18.3"
+    "@hocuspocus/server": "^3.4.4",
+    "yjs": "^13.6.31"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
-    "@types/ws": "^8.5.10",
     "ts-node": "^10.9.2",
     "typescript": "^5.4.5"
   }

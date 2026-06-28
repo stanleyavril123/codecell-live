@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { ChunkSchema, OutputChunk } from "../../../shared/chunks";
+import { ChunkSchema, type OutputChunk } from "../../../shared/chunks";
 import WebSocket from "ws";
 
 type Job = {
@@ -36,7 +36,11 @@ class JobService {
 
     job.sockets.add(ws);
     for (let i = 0; i < job.buffer.length; i++) {
-      ws.send(JSON.stringify(job.buffer[i]));
+      this.send(ws, job.buffer[i]);
+    }
+
+    if (job.closed) {
+      ws.close();
     }
   }
 
@@ -56,22 +60,29 @@ class JobService {
     const r = ChunkSchema.safeParse(raw);
 
     if (!r.success) {
-      console.log("chunk error", r.error);
+      job.status = "error";
+      console.warn("Invalid job chunk", r.error);
       return false;
     }
+
+    if (job.closed) return false;
+
+    job.status = r.data.type === "exit" ? "finished" : "running";
     job.buffer.push(r.data);
 
-    job.sockets.forEach((ws) => ws.send(JSON.stringify(r.data)));
+    job.sockets.forEach((ws) => this.send(ws, r.data));
     if (r.data.type === "exit") {
       job.closed = true;
+      job.sockets.forEach((ws) => ws.close());
+      job.sockets.clear();
     }
-    //TODOOO
-    //  - validate the chunk
-    //  - add to buffer
-    //  - send to all attached sockets
-    //  - handle "exit" chunks (mark closed / cleanup later)
 
     return true;
+  }
+
+  private send(ws: WebSocket, chunk: OutputChunk): void {
+    if (ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify(chunk));
   }
 }
 export const jobService = new JobService();
