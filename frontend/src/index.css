@@ -158,6 +158,27 @@ body {
   border-right: 1px solid var(--hairline) !important;
 }
 
+.yRemoteSelection {
+  border-radius: 2px;
+}
+
+.yRemoteSelectionHead {
+  box-sizing: border-box;
+  height: 1.2em;
+  position: relative;
+}
+
+.yRemoteSelectionHead::after {
+  border-radius: 3px;
+  color: #0f1419;
+  content: "";
+  height: 6px;
+  left: -3px;
+  position: absolute;
+  top: -4px;
+  width: 6px;
+}
+
 /* Output */
 .output-header {
   display: flex;

@@ -1,6 +1,5 @@
 import { Router } from "express";
-import { jobService } from "./jobService";
-
+import { jobService } from "../services/job.service"
 export const internalRouter = Router();
 
 internalRouter.post("/jobs/:jobId/chunk", (req, res) => {

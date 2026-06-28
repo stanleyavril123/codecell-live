@@ -1,0 +1,22 @@
+{
+  "name": "collab-ws",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "build/main.js",
+  "scripts": {
+    "dev": "ts-node src/main.ts",
+    "build": "tsc -p .",
+    "start": "node build/main.js",
+    "test": "echo \"no tests\""
+  },
+  "dependencies": {
+    "@hocuspocus/server": "^3.4.4",
+    "yjs": "^13.6.31"
+  },
+  "devDependencies": {
+    "@types/node": "^20.12.12",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.4.5"
+  }
+}

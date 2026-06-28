@@ -1,5 +1,5 @@
 import { v4 as uuid } from "uuid";
-import { ChunkSchema, OutputChunk } from "../../shared/schemas";
+import { ChunkSchema, type OutputChunk } from "../../../shared/chunks";
 import WebSocket from "ws";
 
 type Job = {
@@ -13,7 +13,6 @@ type Job = {
 
 class JobService {
   private jobs = new Map<string, Job>();
-
   create(req: { language: string; source: string }): string {
     const job: Job = {
       id: uuid(),
@@ -23,64 +22,67 @@ class JobService {
       buffer: [],
       closed: false,
     };
-    console.log("[gateway] Creating job:", job.id, "with req:", req);
-    this.jobs.set(job.id, job);
 
+    this.jobs.set(job.id, job);
     return job.id;
   }
 
   attach(jobId: string, ws: WebSocket) {
     const job = this.jobs.get(jobId);
     if (!job) {
-      console.warn("[internal] pushChunk returned false for jobId:", jobId);
-      return ws.close();
+      ws.close();
+      return;
     }
-    job.sockets.add(ws);
 
-    for (const ch of job.buffer) {
-      ws.send(JSON.stringify(ch));
+    job.sockets.add(ws);
+    for (let i = 0; i < job.buffer.length; i++) {
+      this.send(ws, job.buffer[i]);
     }
 
     if (job.closed) {
-      ws.close(1000, "job complete");
+      ws.close();
     }
   }
 
   detach(jobId: string, ws: WebSocket) {
-    this.jobs.get(jobId)?.sockets.delete(ws);
+    const job = this.jobs.get(jobId);
+    if (!job) return;
+    job.sockets.delete(ws);
   }
 
-  hasJob(id: string) {
+  hasJob(id: string): boolean {
     return this.jobs.has(id);
   }
 
   public pushChunk(jobId: string, raw: unknown): boolean {
     const job = this.jobs.get(jobId);
     if (!job) return false;
+    const r = ChunkSchema.safeParse(raw);
 
-    const parsed = ChunkSchema.safeParse(raw);
-    if (!parsed.success) {
+    if (!r.success) {
+      job.status = "error";
+      console.warn("Invalid job chunk", r.error);
       return false;
     }
-    const chunk: OutputChunk = parsed.data;
 
-    job.buffer.push(chunk);
+    if (job.closed) return false;
 
-    const payload = JSON.stringify(chunk);
-    for (const ws of job.sockets) {
-      if (ws.readyState === ws.OPEN) {
-        ws.send(payload);
-      }
-    }
+    job.status = r.data.type === "exit" ? "finished" : "running";
+    job.buffer.push(r.data);
 
-    if (chunk.type === "exit") {
+    job.sockets.forEach((ws) => this.send(ws, r.data));
+    if (r.data.type === "exit") {
       job.closed = true;
-      setTimeout(() => {
-        if (this.jobs.get(jobId)?.sockets.size === 0) this.jobs.delete(jobId);
-      }, 10_000);
+      job.sockets.forEach((ws) => ws.close());
+      job.sockets.clear();
     }
+
     return true;
   }
-}
 
+  private send(ws: WebSocket, chunk: OutputChunk): void {
+    if (ws.readyState !== WebSocket.OPEN) return;
+    ws.send(JSON.stringify(chunk));
+  }
+}
 export const jobService = new JobService();
